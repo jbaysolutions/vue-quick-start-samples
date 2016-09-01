@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>vue-validator example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--<meta name="description" content="JBay Solutions - Play Java Application Seed">-->
+    <meta name="author" content="JBay Solutions - www.jbaysolutions.com">
+
+    <link rel="stylesheet" media="screen" href="css/font-awesome.min.css">
+    <link rel="stylesheet" media="screen" href="css/bootstrap.min.css">
+    <style type="text/css">
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<section id="main">
+    <div class="container-fluid">
+        <div class="row">
+            <div id="validatorContainer" v-cloak class="col-sm-12">
+                <h2>vue-validator example</h2>
+                <validator name="sampleValidator">
+                    <form v-on:submit.prevent="saveUser" novalidate>
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.firstName.invalid && $sampleValidator.firstName.touched}">
+                            <label for="firstName" class="control-label">First Name *</label>
+                            <input class="form-control" type="text" name="firstName" placeholder="" v-model="user.firstName" v-validate:first-name="{ required: true, maxlength: 50 }"/>
+                            <span class="help-block" v-show="$sampleValidator.firstName.touched && $sampleValidator.firstName.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.firstName.touched && $sampleValidator.firstName.maxlength">The max size is 50.</span>
+                        </div>
+
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.lastName.invalid && $sampleValidator.lastName.touched}">
+                            <label for="lastName" class="control-label">Last Name *</label>
+                            <input class="form-control" type="text" name="lastName" placeholder="" v-model="user.lastName" v-validate:last-name="{ required: true, maxlength: 100 }"/>
+                            <span class="help-block" v-show="$sampleValidator.lastName.touched && $sampleValidator.lastName.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.lastName.touched && $sampleValidator.lastName.maxlength">The max size is 100.</span>
+                        </div>
+
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.country.invalid && $sampleValidator.country.touched}">
+                            <label for="country" class="control-label">Country Code</label>
+                            <input class="form-control" type="text" name="country" placeholder="" v-model="user.country" v-validate:country="{ maxlength: 3 }"/>
+                            <span class="help-block" v-show="$sampleValidator.country.touched && $sampleValidator.country.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.country.touched && $sampleValidator.country.maxlength">The max size is 3.</span>
+                        </div>
+
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.mail.invalid && $sampleValidator.mail.touched}">
+                            <label for="email" class="control-label">Email *</label>
+                            <input class="form-control" type="email" name="email" v-model="user.email" v-validate:mail="{ required: true, email: true }"/>
+                            <span class="help-block" v-show="$sampleValidator.mail.touched && $sampleValidator.mail.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.mail.touched && $sampleValidator.mail.email && !$sampleValidator.mail.required">The email address is not valid.</span>
+                        </div>
+
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.password.invalid && $sampleValidator.password.touched}">
+                            <label for="password" class="control-label" >Password *:</label>
+                            <input type="password" class="form-control" name="password" v-model="user.password" v-validate:password="{ required: true, minlength: 6, maxlength: 10 }">
+                            <span class="help-block" v-show="$sampleValidator.password.touched && $sampleValidator.password.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.password.touched && $sampleValidator.password.minlength && !$sampleValidator.password.required">Please enter at least 6 characters.</span>
+                            <span class="help-block" v-show="$sampleValidator.password.touched && $sampleValidator.password.maxlength">The max size is 255.</span>
+                        </div>
+
+                        <div class="form-group" v-bind:class="{ 'has-error': $sampleValidator.confirmPassword.invalid && $sampleValidator.confirmPassword.touched}">
+                            <label for="confirmPassword" class="control-label" >Confirm password *:</label>
+                            <input type="password" class="form-control" name="confirmPassword" v-model="confirmPassword" v-validate:confirm-password="{ required: true, passwordValidator: { rule: user.password }}">
+                            <span class="help-block" v-show="$sampleValidator.confirmPassword.touched && $sampleValidator.confirmPassword.required">This field is required.</span>
+                            <span class="help-block" v-show="$sampleValidator.confirmPassword.touched && $sampleValidator.confirmPassword.passwordValidator && !$sampleValidator.confirmPassword.required">The passwords don't match.</span>
+                        </div>
+
+                        <button class="btn btn-primary" type="submit">Add</button>
+                    </form>
+                </validator>
+                <br/>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" v-model="showValidatorJson"> Show validator data
+                    </label>
+                </div>
+                <div v-if="showValidatorJson">
+                    <pre>{{$sampleValidator | json}}</pre>
+                </div>
+                <br/><br/>
+                <table class="table table-bordered table-condensed table-striped">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Country Code</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="user in userList" track-by="$index">
+                        <td>{{user.firstName}}</td>
+                        <td>{{user.lastName}}</td>
+                        <td>{{user.country}}</td>
+                        <td>{{user.email}}</td>
+                        <td>{{user.password}}</td>
+                        <td>
+                            <button @click="removeUser(user)" class="btn btn-danger btn-sm">Delete</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="js/vue.js" type="text/javascript"></script>
+<script src="js/vue-resource.js" type="text/javascript"></script>
+<script src="js/vue-validator.js" type="text/javascript"></script>
+<script src="vue-validator-example.js" type="text/javascript"></script>
+</body>
+</html>
