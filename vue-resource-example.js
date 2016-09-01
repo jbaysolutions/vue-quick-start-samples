@@ -12,7 +12,7 @@ new Vue({
         loading: false,
     },
     ready: function () {
-        this.loadRepositories();
+        // this.loadRepositories();
     },
     methods: {
         loadRepositories: function () {
